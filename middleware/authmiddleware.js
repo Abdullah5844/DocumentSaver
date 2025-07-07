@@ -21,3 +21,21 @@ module.exports = async (req, res, next) => {
         return res.status(401).json({ message: 'Invalid token' });
     }
 }
+
+// middleware/authMiddleware.js
+const axios = require('axios');
+
+module.exports = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: 'Token required' });
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const response = await axios.post('http://localhost:4000/validate-token', { token });
+        req.user = response.data;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+};
